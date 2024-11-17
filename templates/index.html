@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Fraud Detection</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Financial Fraud Detection</h1>
+        <form id="fraudForm" class="card p-4 shadow">
+            <div class="mb-3">
+                <label for="type" class="form-label">Transaction Type</label>
+                <input type="number" class="form-control" id="type" placeholder="Enter transaction type (e.g., 1 or 0)" required>
+            </div>
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <input type="number" class="form-control" id="amount" placeholder="Enter transaction amount" required>
+            </div>
+            <div class="mb-3">
+                <label for="oldbalance" class="form-label">Old Balance</label>
+                <input type="number" class="form-control" id="oldbalance" placeholder="Enter old balance" required>
+            </div>
+            <div class="mb-3">
+                <label for="newbalance" class="form-label">New Balance</label>
+                <input type="number" class="form-control" id="newbalance" placeholder="Enter new balance" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Predict Fraud</button>
+        </form>
+
+        <div id="result" class="mt-4 alert d-none"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#fraudForm').on('submit', function (event) {
+                event.preventDefault();
+
+                // Collect form data
+                const data = {
+                    type: $('#type').val(),
+                    amount: $('#amount').val(),
+                    oldbalance: $('#oldbalance').val(),
+                    newbalance: $('#newbalance').val()
+                };
+
+                // Send data to /predict endpoint
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        $('#result').removeClass('d-none').addClass(response.isFraud ? 'alert-danger' : 'alert-success');
+                        $('#result').text(response.isFraud ? 'This transaction is likely fraudulent!' : 'This transaction is not fraudulent.');
+                    },
+                    error: function () {
+                        $('#result').removeClass('d-none').addClass('alert-danger').text('Error processing request.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
